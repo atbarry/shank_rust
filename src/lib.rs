@@ -1,7 +1,10 @@
+use std::fmt;
+use std::fmt::Display;
+
 pub struct Token {
     ttype: TokenType,
     content: String,
-    line_num: u32,
+    file_pos: FilePos,
 }
 
 pub enum TokenType {
@@ -33,9 +36,35 @@ pub enum TokenType {
     MOD,
 }
 
+#[derive(Copy,Clone)]
+pub struct FilePos {
+    pub line: u32,
+    pub character: u32,
+}
+
+impl FilePos {
+    pub fn new(line: u32, character: u32) -> FilePos {
+        FilePos { line, character }
+    }
+    pub fn next_line(&mut self) {
+        self.line += 1;
+        self.character = 0;
+    }
+    pub fn next_character(&mut self) {
+        self.character += 1;
+    }
+}
+
+impl Display for FilePos {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{}:{}", self.line, self.character)
+    }
+}
+
+
 impl Token {
-    pub fn new(ttype: TokenType, content: String, line_num: u32) -> Token {
-        Token { ttype, content, line_num }
+    pub fn new(ttype: TokenType, content: String, file_pos: FilePos) -> Token {
+        Token { ttype, content, file_pos }
     }
 
     pub fn to_string(&self) -> String{
@@ -43,7 +72,7 @@ impl Token {
             TokenType::NUMBER => format!("NUMBER({})", self.content),
             TokenType::IDENTIFIER => format!("IDENTIFIER({})", self.content),
             TokenType::ENDOFLINE => format!("ENDOFLINE"),
-            TokenType::UNKNOWN => format!("UNKOWNCHAR({}) in line {}", self.content, self.line_num),
+            TokenType::UNKNOWN => format!("UNKOWNCHAR({}) in line {}", self.content, self.file_pos),
             _ => format!("Not handled yet({})", self.content),
 
         };
