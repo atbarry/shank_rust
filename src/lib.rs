@@ -1,12 +1,16 @@
 use std::fmt;
 use std::fmt::Display;
 
+pub mod lexer;
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Token {
     ttype: TokenType,
     content: String,
     file_pos: FilePos,
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenType {
     UNKNOWN,
     IDENTIFIER,
@@ -36,7 +40,7 @@ pub enum TokenType {
     MOD,
 }
 
-#[derive(Copy,Clone)]
+#[derive(Debug,PartialEq, Copy,Clone)]
 pub struct FilePos {
     pub line: u32,
     pub character: u32,
@@ -73,6 +77,8 @@ impl Token {
             TokenType::IDENTIFIER => format!("IDENTIFIER({})", self.content),
             TokenType::ENDOFLINE => format!("ENDOFLINE"),
             TokenType::UNKNOWN => format!("UNKOWNCHAR({}) in line {}", self.content, self.file_pos),
+            TokenType::STRINGLITERAL => format!("STRINGLITERAL(\"{}\")", self.content),
+            TokenType::CHARACTERLITERAL => format!("CHARACTERLITERAL('{}')", self.content),
             _ => format!("Not handled yet({})", self.content),
 
         };
