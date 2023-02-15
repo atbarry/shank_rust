@@ -1,18 +1,21 @@
 use std::fmt;
 use std::fmt::Display;
+use std::convert::AsRef;
+use strum_macros::AsRefStr;
 
 pub mod lexer;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Token {
     ttype: TokenType,
-    content: String,
-    file_pos: FilePos,
+    value: Option<String>,
+    line: u32,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, AsRefStr)]
 pub enum TokenType {
-    UNKNOWN,
+    INDENT,
+    DEDENT,
     IDENTIFIER,
     NUMBER,
     ENDOFLINE,
@@ -38,52 +41,50 @@ pub enum TokenType {
     REAL,
     BOOLEAN,
     MOD,
+    PLUS, // Chacters
+    MINUS, 
+    MULTIPLY, 
+    DIVIDE,
+    EQUALS, 
+    NOTEQUAL,
+    LESSTHAN,
+    LESSTHANOREQUAL,
+    GREATERTHAN,
+    GREATERTHANOREQUAL,
+    ASSIGN, 
+    COLON, 
+    SEMICOLON, 
+    COMMA, 
+    LEFTPARENTHESIS, 
+    RIGHTPARENTHESIS,
+    RIGHTSQUAREBRACKET, 
+    LEFTSQUAREBRACKET, 
 }
-
-#[derive(Debug,PartialEq, Copy,Clone)]
-pub struct FilePos {
-    pub line: u32,
-    pub character: u32,
-}
-
-impl FilePos {
-    pub fn new(line: u32, character: u32) -> FilePos {
-        FilePos { line, character }
-    }
-    pub fn next_line(&mut self) {
-        self.line += 1;
-        self.character = 0;
-    }
-    pub fn next_character(&mut self) {
-        self.character += 1;
-    }
-}
-
-impl Display for FilePos {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{}:{}", self.line, self.character)
-    }
-}
-
 
 impl Token {
-    pub fn new(ttype: TokenType, content: String, file_pos: FilePos) -> Token {
-        Token { ttype, content, file_pos }
+    pub fn new_with_value(ttype: TokenType, value: &str, line: u32) -> Token {
+        Token { ttype, value: Some(value.to_owned()), line }
+    }
+
+    pub fn new(ttype: TokenType, line: u32) -> Token {
+        Token { ttype, value: None, line }
+    }
+
+    pub fn token_type(&self) -> TokenType {
+        self.ttype.to_owned()
     }
 
     pub fn to_string(&self) -> String{
-        let out = match self.ttype {
-            TokenType::NUMBER => format!("NUMBER({})", self.content),
-            TokenType::IDENTIFIER => format!("IDENTIFIER({})", self.content),
-            TokenType::ENDOFLINE => format!("ENDOFLINE"),
-            TokenType::UNKNOWN => format!("UNKOWNCHAR({}) in line {}", self.content, self.file_pos),
-            TokenType::STRINGLITERAL => format!("STRINGLITERAL(\"{}\")", self.content),
-            TokenType::CHARACTERLITERAL => format!("CHARACTERLITERAL('{}')", self.content),
-            _ => format!("Not handled yet({})", self.content),
+        format!("Yeah I did not do this yet")
+    }
+}
 
-        };
-
-        out
+impl Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(value) = &self.value {
+            return write!(f, "{}({})", self.ttype.as_ref(), value)
+        }
+        return write!(f, "{}", self.ttype.as_ref())
     }
 }
 
